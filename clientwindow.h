@@ -21,5 +21,10 @@ public:
 private:
     Ui::ClientWindow *ui;
     bool loginsuccess;
+    QLabel *permanent;
+private slots:
+    void timerupdate();
+    void on_NewMail_clicked();
+    void on_RecvMail_clicked();
 };
 #endif // CLIENTWINDOW_H

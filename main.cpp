@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    ClientWindow w;
+    ClientWindow w; //启动主界面
     if(!w.isLogin()) {
         QMessageBox::warning(&w,QObject::tr("警告！"),("用户未成功登入！"),QMessageBox::Yes);    //警告对话框
         return 0;

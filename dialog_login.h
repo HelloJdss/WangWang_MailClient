@@ -14,6 +14,9 @@ class Dialog_login : public QDialog
 
 public:
     explicit Dialog_login(QWidget *parent = 0);
+    const QString getUSERNAME();
+    const QString getPASSWORD();
+    const QString getServerfield();
     ~Dialog_login();
 
 private slots:
@@ -24,5 +27,8 @@ private slots:
 
 private:
     Ui::Dialog_login *ui;
+    QString USERNAME;
+    QString Serverfield;
+    QString PASSWORD;
 };
 #endif // DIALOG_LOGIN_H
