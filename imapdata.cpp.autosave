@@ -1,0 +1,29 @@
+#include "imapdata.h"
+
+iMap::iMap()
+{
+    Host="127.0.0.1"; //初始化为本地ip
+}
+
+qint32 iMap::setUserName(QString USERNAME)
+{
+    this->USERNAME=USERNAME;
+    return this->USERNAME.size();
+}
+
+qint32 iMap::setPassWord(QString PASSWORD)
+{
+    this->PASSWORD=PASSWORD;
+    return this->PASSWORD.size();
+}
+
+qint32 iMap::setHost(QString Host)
+{
+    this->Host=Host;
+    return this->Host.size();
+}
+
+void iMap::setPort(quint16 Port)
+{
+    this->Port=Port;
+}
