@@ -46,15 +46,15 @@ bool iMap::login() {
 
   for (int i = 0; i < info.addresses().size(); i++) {
     this->sock->connectToHost(QHostAddress(info.addresses().at(i)), Port);
-    if (!iMap::recvMsg())
+    if (!this->recvMsg())
       break; //接收数据
     if ("* OK" == buf.left(4)) {
       //      connect(sock, SIGNAL(readyRead()), this,
       //              SLOT(readMesg())); //连接槽函数，使得自动接受数据
 
-      iMap::sendMsg("A001 LOGIN " + this->USERNAME + " " + this->PASSWORD +
+      this->sendMsg("A001 LOGIN " + this->USERNAME + " " + this->PASSWORD +
                     "\r\n");
-      if (!iMap::recvMsg())
+      if (!this->recvMsg())
         break;
       return true;
     }
@@ -68,7 +68,7 @@ bool iMap::login() {
 
 void iMap::sendMsg(QString msg) {
   sock->write(msg.toLatin1(), msg.toLatin1().size());
-  iMap::updateLog("[C]: " + msg);
+  this->updateLog("[C]: " + msg);
 }
 
 bool iMap::recvMsg() {
@@ -76,11 +76,11 @@ bool iMap::recvMsg() {
   if (sock->waitForReadyRead(10000)) { //等待最多10秒
     buf = sock->readAll();
     s = "[S]: ";
-    iMap::updateLog(s + buf);
+    this->updateLog(s + buf);
     return true;
   } else {
     s = "Wait Timeout!";
-    iMap::updateLog(s);
+    this->updateLog(s);
     return false;
   }
 }
@@ -100,8 +100,8 @@ const QStringList &iMap::getLog() {
 }
 
 bool iMap::getInboxMailList() {
-  iMap::sendMsg("A002 examine INBOX\r\n");
-  if (iMap::recvMsg()) {
+  this->sendMsg("A002 examine INBOX\r\n");
+  if (this->recvMsg()) {
     QStringList A002_list;
     A002_list = buf.split("\r\n");
     qDebug() << A002_list;
@@ -113,9 +113,9 @@ bool iMap::getInboxMailList() {
     qint32 exists = A002_list.at(0).split(" ").at(1).toInt(&OK, 10);
     if (OK) {
       for (int i = 1; i <= exists; i++) {
-        iMap::sendMsg("A003 fetch " + QString::number(i, 10) + " ENVELOPE\r\n");
-        if (iMap::recvMsg()) {
-          iMap::InboxList << buf;
+        this->sendMsg("A003 fetch " + QString::number(i, 10) + " ENVELOPE\r\n");
+        if (this->recvMsg()) {
+          this->InboxList << buf;
         } else
           return false;
       }
