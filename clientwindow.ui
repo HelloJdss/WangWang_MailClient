@@ -40,7 +40,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>10</y>
+      <y>20</y>
       <width>120</width>
       <height>40</height>
      </rect>
@@ -53,7 +53,7 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>10</y>
+      <y>20</y>
       <width>120</width>
       <height>40</height>
      </rect>
@@ -66,7 +66,7 @@
     <property name="geometry">
      <rect>
       <x>730</x>
-      <y>10</y>
+      <y>20</y>
       <width>120</width>
       <height>40</height>
      </rect>
@@ -79,7 +79,7 @@
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>10</y>
+      <y>20</y>
       <width>120</width>
       <height>40</height>
      </rect>
@@ -92,7 +92,7 @@
     <property name="geometry">
      <rect>
       <x>1130</x>
-      <y>10</y>
+      <y>20</y>
       <width>120</width>
       <height>40</height>
      </rect>
@@ -169,7 +169,14 @@
     <addaction name="separator"/>
     <addaction name="action_selectAll"/>
    </widget>
+   <widget class="QMenu" name="menu_L">
+    <property name="title">
+     <string>日志分析(&amp;L)</string>
+    </property>
+    <addaction name="action"/>
+   </widget>
    <addaction name="menu_E"/>
+   <addaction name="menu_L"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_undo">
@@ -218,6 +225,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>查看日志(&amp;\)</string>
    </property>
   </action>
  </widget>
