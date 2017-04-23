@@ -146,12 +146,4 @@ QStringList& iMap::getInboxMailList(bool &OK)
     return this->InboxList;
 }
 
-
-
-void iMap::readMesg()
-{
-    buf.append(sock->readAll());
-    qDebug() << log;
-}
-
 iMap::~iMap() { delete sock; }

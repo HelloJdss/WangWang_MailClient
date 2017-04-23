@@ -21,11 +21,11 @@ private:
     Ui::ClientWindow* ui;
     bool loginsuccess;
     iMap imap; //尝试建立imap连接
+    int imapLog_num; //记录已经输出的imapLog数目，下一次从指定位置添加
     QLabel* permanent;
 private slots:
     void timerupdate();
-    void on_NewMail_clicked();
-    void on_RecvMail_clicked();
+    void setimapLog(); //设置并显示日志信息
     void on_action_triggered();
 };
 #endif // CLIENTWINDOW_H

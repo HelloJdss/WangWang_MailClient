@@ -2,6 +2,7 @@
 #include "ui_clientwindow.h"
 #include <QLabel>
 #include <QTimer>
+#include <QStringList>
 #define _version "0.1"
 
 ClientWindow::ClientWindow(QWidget* parent)
@@ -9,8 +10,8 @@ ClientWindow::ClientWindow(QWidget* parent)
     , ui(new Ui::ClientWindow)
 {
     ui->setupUi(this);
-    ui->WriteMail->hide(); //隐藏
-    ui->WriteMail->setReadOnly(true); //禁止写入
+    this->imapLog_num=0;
+
     Dialog_login Login_dialog(this);
     Login_dialog.setModal(
         true); //设置为模态对话框，禁止在登陆之前与主窗口进行交互
@@ -42,18 +43,18 @@ ClientWindow::ClientWindow(QWidget* parent)
         ui->statusBar->addPermanentWidget(this->permanent);
         localtimer->start(1000);
         //绑定操作信号
-        QObject::connect(ui->action_undo, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(undo()));
-        QObject::connect(ui->action_redo, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(redo()));
-        QObject::connect(ui->action_copy, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(copy()));
-        QObject::connect(ui->action_paste, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(paste()));
-        QObject::connect(ui->action_selectAll, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(selectAll()));
-        QObject::connect(ui->action_cut, SIGNAL(triggered()), ui->WriteMail,
-            SLOT(cut()));
+//        QObject::connect(ui->action_undo, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(undo()));
+//        QObject::connect(ui->action_redo, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(redo()));
+//        QObject::connect(ui->action_copy, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(copy()));
+//        QObject::connect(ui->action_paste, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(paste()));
+//        QObject::connect(ui->action_selectAll, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(selectAll()));
+//        QObject::connect(ui->action_cut, SIGNAL(triggered()), ui->WriteMail,
+//            SLOT(cut()));
         //从服务器加载报文
     }
 }
@@ -70,22 +71,16 @@ void ClientWindow::timerupdate()
     this->permanent->setText(text);
 }
 
-void ClientWindow::on_NewMail_clicked()
+void ClientWindow::setimapLog()
 {
-    ui->WriteMail->show();
-    ui->WriteMail->setReadOnly(false); //允许写入
+    QStringList imapLog = this->imap.getLog();
+    for(;this->imapLog_num<imapLog.size();this->imapLog_num++){
+        ui->Logview->append(imapLog.at(this->imapLog_num));
+    }
 }
 
-void ClientWindow::on_RecvMail_clicked()
-{
-    ui->WriteMail->hide(); //隐藏
-    ui->WriteMail->setReadOnly(true); //禁止写入
-    bool OK;
-    qDebug()<<imap.getInboxMailList(OK);
-    if(OK) qDebug()<<imap.getLog();
-}
 
 void ClientWindow::on_action_triggered()
 {
-
+    setimapLog();
 }

@@ -36,7 +36,7 @@ private:
     QStringList log; //系统接收日志
     QStringList InboxList; //收件箱列表
 private slots:
-    void readMesg();
+
 };
 
 #endif // IMAPDATA_H
