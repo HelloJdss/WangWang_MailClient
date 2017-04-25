@@ -33,7 +33,7 @@ void Dialog_login::on_pushButton_clicked()
             accept();
             return;
         }
-        QMessageBox::warning(0, QObject::tr("警告！"), ("用户名输入错误！"),
+        QMessageBox::warning(this, QObject::tr("警告！"), tr("用户名输入错误！"),
             QMessageBox::Yes); //警告对话框
     }
     reject();

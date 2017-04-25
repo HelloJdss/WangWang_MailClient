@@ -18,6 +18,7 @@ public:
     qint32 setHost(QString Host); //设置邮件服务器地址
     void setPort(quint16 Port); //设置邮件服务器端口号
     bool login(); //登陆imap服务器
+    bool logout(); //退出服务器并关闭sock
     void sendMsg(QString msg); //向服务器发送信息
     bool recvMsg(); //获取服务器信息并更新缓冲区
     void updateLog(QString msg); //更新日志
@@ -35,6 +36,7 @@ private:
     QString buf; //读取数据缓冲区
     QStringList log; //系统接收日志
     QStringList InboxList; //收件箱列表
+    QStringList MailBoxList; //邮箱列表
 private slots:
 
 };

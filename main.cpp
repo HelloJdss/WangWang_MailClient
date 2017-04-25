@@ -1,9 +1,11 @@
 #include "clientwindow.h"
 #include <QApplication>
+#include <QStyleFactory>
 
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
+    a.setStyle(QStyleFactory::create("fusion"));
     ClientWindow w; //启动主界面
     if (!w.isLogin()) {
         QMessageBox::warning(&w, QObject::tr("警告！"), ("用户未成功登入！"),

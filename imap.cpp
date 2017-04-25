@@ -43,7 +43,7 @@ bool iMap::login()
 
     QHostInfo info = QHostInfo::fromName(Host);
     if (0 == info.addresses().size()) {
-        QMessageBox::critical(0, QObject::tr("错误！"), ("服务器域名错误！"),
+        QMessageBox::critical(0, QObject::tr("错误！"), tr("服务器域名错误！"),
             QMessageBox::Yes); //警告对话框
         return false;
     }
@@ -56,20 +56,28 @@ bool iMap::login()
         if (!this->recvMsg())
             break; //接收数据
         if ("* OK" == buf.left(4)) {
-            //      connect(sock, SIGNAL(readyRead()), this,
-            //              SLOT(readMesg())); //连接槽函数，使得自动接受数据
-
             this->sendMsg("A001 LOGIN " + this->USERNAME + " " + this->PASSWORD + "\r\n");
-            if (!this->recvMsg())
-                break;
-            return true;
+            if (this->recvMsg()) {
+                if ("A001 OK" != buf.left(7))
+                    break;
+                else return true;
+            }
+            return false;
         }
         sock->abort(); //中断本次连接
     }
     //连接服务器失败
-    QMessageBox::warning(0, QObject::tr("警告！"), ("连接服务器失败！"),
+    QMessageBox::warning(0, QObject::tr("警告！"), tr("连接服务器失败！"),
         QMessageBox::Yes); //警告对话框
     return false;
+}
+
+bool iMap::logout()
+{
+    this->sendMsg("A100 LOGOUT\r\n");
+    this->recvMsg();
+    this->sock->close();
+    return true;
 }
 
 void iMap::sendMsg(QString msg)
@@ -105,45 +113,56 @@ void iMap::updateLog(QString msg)
 
 const QStringList& iMap::getLog()
 {
-    for (int i = 0; i < log.size(); i++) {
-        qDebug() << log.at(i);
-    }
+//    for (int i = 0; i < log.size(); i++) {
+//        qDebug() << log.at(i);
+//    }
+//
     return this->log;
 }
 
-QStringList& iMap::getInboxMailList(bool &OK)
+
+QStringList& iMap::getInboxMailList(bool& OK)
 {
-    this->sendMsg("A002 examine INBOX\r\n");
+    this->sendMsg("A003 examine INBOX\r\n");
     if (this->recvMsg()) {
         QStringList A002_list;
         A002_list = buf.split("\r\n");
-        qDebug() << A002_list;
-        qDebug() << A002_list.size();
-        if (8 != A002_list.size()){
-            OK=false;
-            return  this->InboxList;
-        }
+        A002_list.removeLast(); //去掉最后一个空字符串
         //成功打开INBOX
         bool OK1;
         qint32 exists = A002_list.at(0).split(" ").at(1).toInt(&OK1, 10);
-        qDebug() << OK1;
         if (OK1) {
-            for (int i = 1; i <= exists; i++) {
+            QString recvbuf;
+            for (int i = exists; i >= 1; i--) {
                 this->sendMsg("A003 fetch " + QString::number(i, 10) + " BODY[header]\r\n");
-                if (this->recvMsg()) {
-                    qDebug()<<buf;
-                    this->InboxList << buf;
-                } else {
-                    qDebug() << this->InboxList;
-                    OK= false;
+                while ((OK1=this->recvMsg())) {//循环接收，因为可能会被拆成多个报文段
+                    if(("* "==buf.left(2))&&(buf.split("\r\n").at(0).contains("FETCH"))){
+                        //收到报文头，则将recvbuf内容推送，清空，重写,因此，第一次是脏数据，不推送
+                        if(i<exists)this->InboxList<<recvbuf;
+                        recvbuf.clear();
+                        recvbuf.append(buf);
+                        break;
+                    }
+                    else{
+                        //剩余报文段继续组装
+                        recvbuf.append(buf);
+                    }
+                }
+                if(i==1) this->InboxList<<recvbuf;
+                if(!OK1){
+                    OK = false;
                     return this->InboxList;
                 }
             }
-            OK= true;
+            OK = true;
         }
-    }
-    else OK= false;
+    } else
+        OK = false;
     return this->InboxList;
 }
 
-iMap::~iMap() { delete sock; }
+iMap::~iMap()
+{
+    this->logout();
+    delete sock;
+}

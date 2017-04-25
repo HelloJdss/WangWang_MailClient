@@ -99,24 +99,36 @@
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>180</width>
          <height>652</height>
         </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
        </property>
       </widget>
       <widget class="QSplitter" name="splitter">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
-       <widget class="QTableWidget" name="tableWidget">
+       <widget class="QTableView" name="MailTable">
         <property name="minimumSize">
          <size>
           <width>500</width>
           <height>150</height>
          </size>
         </property>
+        <property name="baseSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
        </widget>
-       <widget class="QTextBrowser" name="textBrowser">
+       <widget class="QTextBrowser" name="MailText">
         <property name="minimumSize">
          <size>
           <width>500</width>
@@ -175,10 +187,31 @@
     <property name="title">
      <string>日志分析(&amp;L)</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="action_imapLog"/>
    </widget>
+   <widget class="QMenu" name="menu_P">
+    <property name="title">
+     <string>帐号配置(&amp;P)</string>
+    </property>
+    <addaction name="action_relog"/>
+   </widget>
+   <widget class="QMenu" name="menu_F">
+    <property name="title">
+     <string>文件(&amp;F)</string>
+    </property>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_H">
+    <property name="title">
+     <string>帮助(&amp;H)</string>
+    </property>
+    <addaction name="action_A"/>
+   </widget>
+   <addaction name="menu_F"/>
    <addaction name="menu_E"/>
+   <addaction name="menu_P"/>
    <addaction name="menu_L"/>
+   <addaction name="menu_H"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="action_undo">
@@ -229,13 +262,45 @@
     <string>Ctrl+A</string>
    </property>
   </action>
-  <action name="action">
+  <action name="action_imapLog">
    <property name="text">
     <string>查看日志(&amp;\)</string>
+   </property>
+  </action>
+  <action name="action_relog">
+   <property name="text">
+    <string>重新登录</string>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="text">
+    <string>退出(&amp;Q)</string>
+   </property>
+  </action>
+  <action name="action_A">
+   <property name="text">
+    <string>关于(&amp;A)</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_quit</sender>
+   <signal>triggered()</signal>
+   <receiver>ClientWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
