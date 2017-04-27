@@ -27,8 +27,9 @@ private:
     QStandardItemModel *MailBoxTree;
     void initMailTableView();
     void updateMailTableView();
-    QStringList AnalyzeMailHeader(int order); //分析邮件头
+    QByteArray DecodequotedPrintable(const QByteArray& code); //解析Quoted-printable编码
     QStringList* MaillistDataInTable; //记录邮件的头部
+    QStringList* MailBodyData;//记录邮件正文
     QStandardItemModel *MailTable;
     int imapLog_num; //记录已经输出的imapLog数目，下一次从指定位置添加
     QLabel* permanent; //用于状态栏输出当前时间
@@ -38,5 +39,7 @@ private slots:
     void on_action_imapLog_triggered();
     void on_action_relog_triggered();
     void on_MailBoxView_doubleClicked(const QModelIndex &index);
+    void on_MailTable_doubleClicked(const QModelIndex &index);
+    void updateProgressbar_read(qint32 readnum,qint32 maxnum);
 };
 #endif // CLIENTWINDOW_H

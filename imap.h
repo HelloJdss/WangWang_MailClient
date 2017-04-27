@@ -23,7 +23,8 @@ public:
     bool recvMsg(); //获取服务器信息并更新缓冲区
     void updateLog(QString msg); //更新日志
     const QStringList& getLog(); //获取日志信息
-    QStringList& getInboxMailList(bool &OK); //获取收件箱邮件列表
+    QStringList& getMailList(QString BOXNAME,bool &OK); //获取邮箱邮件列表，并记录邮件数目
+    QString &getMailBody(qint32 index); //获取邮件体
     ~iMap();
 
 private:
@@ -36,7 +37,11 @@ private:
     QString buf; //读取数据缓冲区
     QStringList log; //系统接收日志
     QStringList InboxList; //收件箱列表
-    QStringList MailBoxList; //邮箱列表
+    QString Mailbodytext; //邮件正文
+    qint32 Mailnum; //邮件数目
+    qint32 MailtextBytes; //需要接受的邮件体字节数目
+signals:
+    void readprogress(qint32,qint32);
 private slots:
 
 };

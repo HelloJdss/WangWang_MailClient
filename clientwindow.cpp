@@ -1,9 +1,10 @@
 #include "clientwindow.h"
 #include "ui_clientwindow.h"
 #include <QLabel>
+#include <QRegExp>
 #include <QStringList>
-#include <QTimer>
 #include <QTextCodec>
+#include <QTimer>
 #define _version "0.1"
 
 ClientWindow::ClientWindow(QWidget* parent)
@@ -29,17 +30,24 @@ ClientWindow::ClientWindow(QWidget* parent)
         ui->statusBar->addPermanentWidget(this->permanent);
         localtimer->start(1000);
         //绑定操作信号
-        //        QObject::connect(ui->action_undo, SIGNAL(triggered()), ui->WriteMail,
+        connect(&this->imap, &iMap::readprogress, this, &ClientWindow::updateProgressbar_read); //绑定读取邮件进度条信号
+        //        QObject::connect(ui->action_undo, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(undo()));
-        //        QObject::connect(ui->action_redo, SIGNAL(triggered()), ui->WriteMail,
+        //        QObject::connect(ui->action_redo, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(redo()));
-        //        QObject::connect(ui->action_copy, SIGNAL(triggered()), ui->WriteMail,
+        //        QObject::connect(ui->action_copy, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(copy()));
-        //        QObject::connect(ui->action_paste, SIGNAL(triggered()), ui->WriteMail,
+        //        QObject::connect(ui->action_paste, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(paste()));
-        //        QObject::connect(ui->action_selectAll, SIGNAL(triggered()), ui->WriteMail,
+        //        QObject::connect(ui->action_selectAll, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(selectAll()));
-        //        QObject::connect(ui->action_cut, SIGNAL(triggered()), ui->WriteMail,
+        //        QObject::connect(ui->action_cut, SIGNAL(triggered()),
+        //        ui->WriteMail,
         //            SLOT(cut()));
         //从服务器加载报文
         initMailBoxListTree();
@@ -53,7 +61,8 @@ ClientWindow::~ClientWindow() { delete ui; }
 
 void ClientWindow::initMailBoxListTree()
 {
-    this->MailBoxTree->setHorizontalHeaderLabels(QStringList() << QString(tr("邮箱列表")));
+    this->MailBoxTree->setHorizontalHeaderLabels(QStringList()
+        << QString(tr("邮箱列表")));
     this->ui->MailBoxView->setModel(this->MailBoxTree);
     QStandardItem* item = new QStandardItem(QString(tr("我的邮箱")));
     this->MailBoxTree->appendRow(item);
@@ -66,63 +75,165 @@ void ClientWindow::initMailBoxListTree()
 
 void ClientWindow::initMailTableView()
 {
-    this->MailTable->setHorizontalHeaderLabels(QStringList() << QString(tr("序号"))
-                                               << QString(tr("发件人"))
-                                               << QString(tr("主题"))
-                                               << QString(tr("日期")));
+    this->MailTable->clear();
+    this->MailTable->setHorizontalHeaderLabels(
+        QStringList() << QString(tr("序号")) << QString(tr("发件人"))
+                      << QString(tr("收件人")) << QString(tr("主题"))
+                      << QString(tr("日期")));
     this->ui->MailTable->setModel(this->MailTable);
     this->ui->MailTable->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
     this->ui->MailTable->verticalHeader()->hide();
-    this->ui->MailTable->setColumnWidth(0,50);
-    this->ui->MailTable->setColumnWidth(1,400);
-    this->ui->MailTable->setColumnWidth(2,400);
-    this->ui->MailTable->setColumnWidth(3,300);
+    this->ui->MailTable->setColumnWidth(0, 50);
+    this->ui->MailTable->setColumnWidth(1, 225);
+    this->ui->MailTable->setColumnWidth(2, 225);
+    this->ui->MailTable->setColumnWidth(3, 400);
+    this->ui->MailTable->setColumnWidth(4, 250);
 }
 
 void ClientWindow::updateMailTableView()
 {
-    for(int i=0;i<this->MaillistDataInTable->size();i++){
-        this->MailTable->setItem(i,0,new QStandardItem(QString::number(i+1,10)));
-        this->MailTable->item(i,0)->setTextAlignment(Qt::AlignCenter); //序号居中
+    initMailTableView();
+    for (int i = 0; i < this->MaillistDataInTable->size(); i++) {
+        this->MailTable->setItem(i, 0,
+            new QStandardItem(QString::number(i + 1, 10)));
+        this->MailTable->item(i, 0)->setTextAlignment(Qt::AlignCenter); //序号居中
         QStringList MailHeader = this->MaillistDataInTable->at(i).split("\r\n");
-        for(int j=0;j<MailHeader.size();j++){
-            if(MailHeader.at(j).left(8)=="Subject:"){
-                //处理主题信息
-                QString subject=MailHeader.at(j);
-                subject=subject.remove("Subject:").remove(" ");
-                if("=?"==subject.left(2)){
-                    QStringList sub =subject.split("?");
-                    qDebug()<<sub.at(1).toUpper().toLatin1();
-                    QTextCodec *codec =QTextCodec::codecForName(sub.at(1).toUpper().toLatin1());
-                    QString sub_utf = codec->toUnicode(QByteArray::fromBase64(sub.at(3).toLatin1()));
-                    this->MailTable->setItem(i,2,new QStandardItem(sub_utf));
-                    qDebug()<<sub;
-                }
-                else this->MailTable->setItem(i,2,new QStandardItem(subject));
-                break;
+        QRegExp spacec("\\s");
+        for (int k = 0; k < MailHeader.size(); k++) {
+            int j = k + 1;
+            while (1) { //将同一段落合并
+                if ((j < MailHeader.size()) && (spacec.exactMatch(MailHeader.at(j).left(1)))) {
+                    MailHeader[k].append(MailHeader.at(j));
+                    MailHeader.removeAt(j);
+                } else
+                    break;
             }
-            if(MailHeader.at(j).left(5)=="Date:"){
-                //处理时间
-                QString date=MailHeader.at(j);
-                date=date.remove("Date:");
-                this->MailTable->setItem(i,3,new QStandardItem(date));
-            }
-            if(MailHeader.at(j).left(5)=="From:"){
+        }
+        for (int j = 0; j < MailHeader.size(); j++) {
+            if (MailHeader.at(j).left(5) == "From:") {
                 //处理发件人
-                QString from=MailHeader.at(j);
-                from=from.remove("From:").remove(" ");
-                if("=?"==from.left(2)){
-                    QStringList sub =from.split("?");
-                    qDebug()<<sub.at(1).toUpper().toLatin1();
-                    QTextCodec *codec =QTextCodec::codecForName(sub.at(1).toUpper().toLatin1());
-                    QString sub_utf = codec->toUnicode(QByteArray::fromBase64(sub.at(3).toLatin1()));
-                    this->MailTable->setItem(i,1,new QStandardItem(sub_utf));
-                    qDebug()<<sub;
+                QString from = MailHeader.at(j);
+                QString from1 = from.remove("From:").remove(" ");
+                QRegExp Base64c("=(.*)="); //提取加密部分
+                int pos = 0;
+                pos = Base64c.indexIn(from1, pos);
+                if (pos != -1) {
+                    from1 = Base64c.cap(0);
+                    QStringList sub = from1.split("?");
+                    if (sub.size() < 3) {
+                        //异常
+                        QMessageBox::warning(this, QObject::tr("警告！"),
+                            tr("邮件发件人解析失败，请重试！"),
+                            QMessageBox::Yes); //警告对话框
+                        return;
+                    }
+                    QTextCodec* codec = QTextCodec::codecForName(sub.at(1).toUpper().toLatin1());
+                    QString sub_utf;
+                    if (sub.at(2).toUpper() == "B")
+                        sub_utf = codec->toUnicode(QByteArray::fromBase64(sub.at(3).toLatin1()));
+                    else if (sub.at(2).toUpper() == "Q")
+                        sub_utf = codec->toUnicode(DecodequotedPrintable(sub.at(3).toLatin1()));
+                    this->MailTable->setItem(i, 1, new QStandardItem(sub_utf));
+                } else
+                    this->MailTable->setItem(i, 1, new QStandardItem(from));
+            } else if (MailHeader.at(j).left(3) == "To:") {
+                //处理收件人
+                QString to = MailHeader.at(j);
+                QString to1 = to.remove("To:").remove(" ");
+                QRegExp Base64c("=(.*)="); //提取加密部分
+                int pos = 0;
+                pos = Base64c.indexIn(to1, pos);
+                if (pos != -1) {
+                    to1 = Base64c.cap(0);
+                    QStringList sub = to1.split("?");
+                    if (sub.size() < 3) {
+                        //异常
+                        QMessageBox::warning(this, QObject::tr("警告！"),
+                            tr("邮件收件人解析失败，请重试！"),
+                            QMessageBox::Yes); //警告对话框
+                        return;
+                    }
+                    QTextCodec* codec = QTextCodec::codecForName(sub.at(1).toUpper().toLatin1());
+                    QString sub_utf;
+                    if (sub.at(2).toUpper() == "B")
+                        sub_utf = codec->toUnicode(QByteArray::fromBase64(sub.at(3).toLatin1()));
+                    else if (sub.at(2).toUpper() == "Q")
+                        sub_utf = codec->toUnicode(DecodequotedPrintable(sub.at(3).toLatin1()));
+                    this->MailTable->setItem(i, 2, new QStandardItem(sub_utf));
+                } else
+                    this->MailTable->setItem(i, 2, new QStandardItem(to));
+            } else if (MailHeader.at(j).left(8) == "Subject:") {
+                //处理主题信息
+                QString subject;
+                QString subject1 = QString(MailHeader.at(j)).remove("Subject:");
+                QRegExp c("\\s");
+                while (c.exactMatch(subject1.left(1))) {
+                    subject1.remove(0, 1); //若首字符为空，则移除
                 }
-                else this->MailTable->setItem(i,1,new QStandardItem(from));
+                QStringList CodeList = subject1.split(" ");
+                bool find = 0;
+                for (int Codesub = 0; Codesub < CodeList.size(); Codesub++) {
+                    if ("=?" == CodeList.at(Codesub).left(2)) {
+                        QStringList sub = CodeList.at(Codesub).split("?");
+                        if (sub.size() < 3) {
+                            //异常
+                            QMessageBox::warning(this, QObject::tr("警告！"),
+                                tr("邮件主题解析失败，请重试！"),
+                                QMessageBox::Yes); //警告对话框
+                            return;
+                        }
+                        QTextCodec* codec = QTextCodec::codecForName(sub.at(1).toUpper().toLatin1());
+                        QString sub_utf;
+                        if (sub.at(2).toUpper() == "B")
+                            sub_utf = codec->toUnicode(QByteArray::fromBase64(sub.at(3).toLatin1()));
+                        else if (sub.at(2).toUpper() == "Q")
+                            sub_utf = codec->toUnicode(DecodequotedPrintable(sub.at(3).toLatin1()));
+                        subject.append(sub_utf);
+                        find = 1; //说明存在待解析的编码
+                    }
+                }
+                if (find)
+                    this->MailTable->setItem(i, 3, new QStandardItem(subject));
+                else
+                    this->MailTable->setItem(i, 3, new QStandardItem(subject1));
+            } else if (MailHeader.at(j).left(5) == "Date:") {
+                //处理时间
+                QString date = MailHeader.at(j);
+                date = date.remove("Date:");
+                QRegExp c("\\s");
+                while (c.exactMatch(date.left(1))) {
+                    date.remove(0, 1); //若首字符为空，则移除
+                }
+                this->MailTable->setItem(i, 4, new QStandardItem(date));
             }
         }
     }
+    QMessageBox::warning(0, QObject::tr("提示！"),
+        tr("接收完成！"),
+        QMessageBox::Yes); //提示对话框
+}
+
+QByteArray ClientWindow::DecodequotedPrintable(const QByteArray& code)
+{
+    //论手写解码函数一次成功是怎样的愉悦体验
+    int pos = 0;
+    QByteArray decode;
+    while ((pos < code.size()) && ('\0' != code.at(pos))) {
+        if (code.mid(pos, 3) == "=\r\n") {
+            pos += 3; //跳过
+        } else {
+            if (code.at(pos) == '=') {
+                QByteArray c = code.mid(pos + 1, 2);
+                decode.append(QByteArray::fromHex(c));
+                pos += 3;
+            } else {
+                decode.append(code.at(pos));
+                pos++;
+            }
+        }
+    }
+    decode.append('\0');
+    return decode;
 }
 
 void ClientWindow::timerupdate()
@@ -141,10 +252,7 @@ void ClientWindow::setimapLog()
     }
 }
 
-void ClientWindow::on_action_imapLog_triggered()
-{
-    setimapLog();
-}
+void ClientWindow::on_action_imapLog_triggered() { setimapLog(); }
 
 void ClientWindow::on_action_relog_triggered()
 {
@@ -172,28 +280,42 @@ void ClientWindow::on_action_relog_triggered()
 
 void ClientWindow::on_MailBoxView_doubleClicked(const QModelIndex& index)
 {
-    qDebug() << index;
-    qDebug() << index.column() << index.row() << index.parent().row();
     if (index.parent().row() == 0) {
+        bool OK = false;
         switch (index.row()) {
         case 0:
-            bool OK;
-            this->MaillistDataInTable = &this->imap.getInboxMailList(OK);
-            qDebug()<<OK;
-            if(OK) updateMailTableView();
-            else {
-                QMessageBox::warning(this, QObject::tr("警告！"), tr("获取邮件列表失败，请重试！"),
-                    QMessageBox::Yes); //警告对话框
-            }
+            this->MaillistDataInTable = &this->imap.getMailList("\"INBOX\"", OK);
             break;
         case 1:
+            this->MaillistDataInTable = &this->imap.getMailList("\"Sent Messages\"", OK);
             break;
         case 2:
+            this->MaillistDataInTable = &this->imap.getMailList("\"Drafts\"", OK);
             break;
         case 3:
+            this->MaillistDataInTable = &this->imap.getMailList("\"Deleted Messages\"", OK);
             break;
         case 4:
+            this->MaillistDataInTable = &this->imap.getMailList("\"Junk\"", OK);
             break;
         }
+        if (OK)
+            updateMailTableView();
+        else {
+            QMessageBox::warning(this, QObject::tr("警告！"),
+                tr("获取邮件列表失败，请重试！"),
+                QMessageBox::Yes); //警告对话框
+        }
     }
+}
+
+void ClientWindow::on_MailTable_doubleClicked(const QModelIndex& index)
+{
+    ui->MailText->setText(imap.getMailBody(index.row()));
+}
+
+void ClientWindow::updateProgressbar_read(qint32 readnum, qint32 maxnum)
+{
+    ui->progressBar_read->setMaximum(maxnum);
+    ui->progressBar_read->setValue(readnum);
 }

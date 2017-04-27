@@ -89,10 +89,17 @@ void iMap::sendMsg(QString msg)
 bool iMap::recvMsg()
 {
     QString s;
-    if (sock->waitForReadyRead(10000)) { //等待最多10秒-
+    if (sock->waitForReadyRead(3000)) { //等待最多3秒
         buf.clear();
-        while (sock->canReadLine())
+        bool first=true;
+        this->MailtextBytes=0;
+        while (sock->canReadLine()){
+            if(first) {
+                this->MailtextBytes+=sock-> bytesAvailable(); //读取本次可以读取的字节数
+                first=false;
+            }
             buf.append(sock->readLine());
+        }
         s = "[S]: ";
         this->updateLog(s + buf);
         return true;
@@ -121,9 +128,10 @@ const QStringList& iMap::getLog()
 }
 
 
-QStringList& iMap::getInboxMailList(bool& OK)
+QStringList& iMap::getMailList(QString BOXNAME,bool& OK)
 {
-    this->sendMsg("A003 examine INBOX\r\n");
+    this->sendMsg("A003 examine "+BOXNAME+"\r\n");
+    this->InboxList.clear();
     if (this->recvMsg()) {
         QStringList A002_list;
         A002_list = buf.split("\r\n");
@@ -131,9 +139,11 @@ QStringList& iMap::getInboxMailList(bool& OK)
         //成功打开INBOX
         bool OK1;
         qint32 exists = A002_list.at(0).split(" ").at(1).toInt(&OK1, 10);
+        this->Mailnum=exists;
         if (OK1) {
             QString recvbuf;
-            for (int i = exists; i >= 1; i--) {
+            for (int i = exists; i >= 1;i--,
+                 emit readprogress(exists-i,exists)) {//发送进度条信号
                 this->sendMsg("A003 fetch " + QString::number(i, 10) + " BODY[header]\r\n");
                 while ((OK1=this->recvMsg())) {//循环接收，因为可能会被拆成多个报文段
                     if(("* "==buf.left(2))&&(buf.split("\r\n").at(0).contains("FETCH"))){
@@ -159,6 +169,24 @@ QStringList& iMap::getInboxMailList(bool& OK)
     } else
         OK = false;
     return this->InboxList;
+}
+
+QString &iMap::getMailBody(qint32 index)
+{
+    this->sendMsg("A004 fetch " + QString::number(this->Mailnum-index, 10) + " BODY[text]\r\n");
+    bool OK1=false;
+    qint32 texttotal=0;
+    this->Mailbodytext.clear();
+    while ((OK1=this->recvMsg())) {//循环接收，因为可能会被拆成多个报文段
+        texttotal+=this->MailtextBytes;
+        qDebug()<<Mailbodytext.toLocal8Bit().size()<<texttotal;
+        emit readprogress(this->Mailbodytext.toLocal8Bit().size(),texttotal);
+        this->Mailbodytext.append(this->buf);
+        if(this->Mailbodytext.toLocal8Bit().size()==texttotal) break; //完全接受数据则不再等待
+    }
+    qDebug()<<Mailbodytext.toLocal8Bit().size()<<texttotal;
+    emit readprogress(this->Mailbodytext.toLatin1().size(),texttotal);
+    return this->Mailbodytext;
 }
 
 iMap::~iMap()
