@@ -14,9 +14,12 @@ class SMTP : public QObject {
 public:
     explicit SMTP(QObject* parent = 0);
     ~SMTP();
-    void WriteAndWait(QString s);
+    void WriteAndWait(QString &s,bool wait = false);
     bool Connect(QString host, quint16 port);
     bool Login(QString username, QString password);
+    bool SendMail(QString subject, QString recipient,QString content);
+    QString str; //读取数据缓冲区
+
 
 private:
     QString USERNAME;
@@ -24,7 +27,6 @@ private:
     QString Host; //主机地址
     quint16 Port; //主机端口
     QTcpSocket* sock;
-    QString str; //读取数据缓冲区
 private slots:
     void readMesg();
 };

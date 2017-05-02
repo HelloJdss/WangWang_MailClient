@@ -269,12 +269,17 @@ void ClientWindow::on_action_relog_triggered()
     } else if (ret == QDialog::Accepted) {
         if (loginsuccess) //若已经成功登录，则先退出
             imap.logout();
-        imap.setHost("imap.qq.com");
+        imap.setHost("imap.163.com");
         imap.setPort(143);
         imap.setUserName(Login_dialog.getUSERNAME());
         imap.setPassWord(Login_dialog.getPASSWORD());
         imap.setServerfield(Login_dialog.getServerfield());
-        loginsuccess = imap.login(); //进行登陆验证
+
+        //smtp
+        bool cnfl = smtp.Connect("smtp.163.com",25);
+        bool lgfl = smtp.Login(Login_dialog.getUSERNAME(),Login_dialog.getPASSWORD());
+        //进行登陆验证
+        loginsuccess = imap.login()&&cnfl&&lgfl;
     }
 }
 
@@ -318,4 +323,9 @@ void ClientWindow::updateProgressbar_read(qint32 readnum, qint32 maxnum)
 {
     ui->progressBar_read->setMaximum(maxnum);
     ui->progressBar_read->setValue(readnum);
+}
+
+void ClientWindow::on_addfile_2_clicked()
+{
+    smtp.SendMail(ui->Subject_edit->text(),ui->To_edit->text(),ui->Text_edit->toPlainText());
 }

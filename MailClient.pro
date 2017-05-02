@@ -18,12 +18,14 @@ SOURCES += main.cpp\
         clientwindow.cpp \
     dialog_login.cpp \
     stdafx.cpp \
-    imap.cpp
+    imap.cpp \
+    smtp.cpp
 
 HEADERS  += clientwindow.h \
     dialog_login.h \
     stdafx.h \
-    imap.h
+    imap.h \
+    smtp.h
 
 FORMS    += clientwindow.ui \
     dialog_login.ui

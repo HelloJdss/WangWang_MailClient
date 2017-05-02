@@ -3,6 +3,7 @@
 
 #include "dialog_login.h"
 #include "imap.h"
+#include "smtp.h"
 #include "stdafx.h"
 #include <QStandardItemModel>
 
@@ -23,6 +24,7 @@ private:
     bool loginsuccess;
     Dialog_login Login_dialog; //记录登录信息，包括登录用户名以及密码等信息
     iMap imap; //尝试建立imap连接
+    SMTP smtp;
     void initMailBoxListTree();
     QStandardItemModel *MailBoxTree;
     void initMailTableView();
@@ -41,5 +43,6 @@ private slots:
     void on_MailBoxView_doubleClicked(const QModelIndex &index);
     void on_MailTable_doubleClicked(const QModelIndex &index);
     void updateProgressbar_read(qint32 readnum,qint32 maxnum);
+    void on_addfile_2_clicked();
 };
 #endif // CLIENTWINDOW_H
