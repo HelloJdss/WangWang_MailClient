@@ -11,35 +11,36 @@ class ClientWindow;
 }
 
 class ClientWindow : public QMainWindow {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit ClientWindow(QWidget* parent = 0);
-    bool isLogin(); //是否登陆成功
-    ~ClientWindow();
+  explicit ClientWindow(QWidget *parent = 0);
+  bool isLogin(); //是否登陆成功
+  ~ClientWindow();
 
 private:
-    Ui::ClientWindow* ui;
-    bool loginsuccess;
-    Dialog_login Login_dialog; //记录登录信息，包括登录用户名以及密码等信息
-    iMap imap; //尝试建立imap连接
-    void initMailBoxListTree();
-    QStandardItemModel *MailBoxTree;
-    void initMailTableView();
-    void updateMailTableView();
-    QByteArray DecodequotedPrintable(const QByteArray& code); //解析Quoted-printable编码
-    QStringList* MaillistDataInTable; //记录邮件的头部
-    QStringList* MailBodyData;//记录邮件正文
-    QStandardItemModel *MailTable;
-    int imapLog_num; //记录已经输出的imapLog数目，下一次从指定位置添加
-    QLabel* permanent; //用于状态栏输出当前时间
+  Ui::ClientWindow *ui;
+  bool loginsuccess;
+  Dialog_login Login_dialog; //记录登录信息，包括登录用户名以及密码等信息
+  iMap imap;                 //尝试建立imap连接
+  void initMailBoxListTree();
+  QStandardItemModel *MailBoxTree;
+  void initMailTableView();
+  void updateMailTableView();
+  QByteArray
+  DecodequotedPrintable(const QByteArray &code); //解析Quoted-printable编码
+  QStringList *MaillistDataInTable;              //记录邮件的头部
+  QStringList *MailBodyData;                     //记录邮件正文
+  QStandardItemModel *MailTable;
+  int imapLog_num; //记录已经输出的imapLog数目，下一次从指定位置添加
+  QLabel *permanent; //用于状态栏输出当前时间
 private slots:
-    void timerupdate();
-    void setimapLog(); //设置并显示日志信息
-    void on_action_imapLog_triggered();
-    void on_action_relog_triggered();
-    void on_MailBoxView_doubleClicked(const QModelIndex &index);
-    void on_MailTable_doubleClicked(const QModelIndex &index);
-    void updateProgressbar_read(qint32 readnum,qint32 maxnum);
+  void timerupdate();
+  void setimapLog(); //设置并显示日志信息
+  void on_action_imapLog_triggered();
+  void on_action_relog_triggered();
+  void on_MailBoxView_doubleClicked(const QModelIndex &index);
+  void on_MailTable_doubleClicked(const QModelIndex &index);
+  void updateProgressbar_read(qint32 readnum, qint32 maxnum);
 };
 #endif // CLIENTWINDOW_H
