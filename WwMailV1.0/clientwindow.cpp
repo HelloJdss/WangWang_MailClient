@@ -20,6 +20,8 @@ ClientWindow::ClientWindow(QWidget *parent)
     QString version = _version;
     QString Welcome = "欢迎使用汪汪邮箱(*^__^*) ~~";
     ui->statusBar->showMessage(Welcome);
+    ui->splitter_2->setStretchFactor(0,2);
+    ui->splitter_2->setStretchFactor(1,8);
     //设定当前时钟
     this->permanent = new QLabel(this);
     QTimer *localtimer = new QTimer(this);
