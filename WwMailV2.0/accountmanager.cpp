@@ -4,6 +4,10 @@
 AccountManager::AccountManager(QWidget *parent)
     : QWidget(parent), ui(new Ui::AccountManager) {
   ui->setupUi(this);
+}
+
+void AccountManager::initialize()
+{
   accounts.clear();            //清空帐户链
   QFile file("accounts.data"); //如果已有帐户，则自动读取
   QFileInfo info(file);
@@ -22,6 +26,7 @@ AccountManager::AccountManager(QWidget *parent)
       in >> act.smtpfield;
       in >> act.smtpport;
       accounts.append(act);
+      emit createimap(act); //请求主线程增加imap连接线程
     }
     file.close();
     QMessageBox::warning(0, QObject::tr("提示！"),
@@ -91,11 +96,11 @@ void AccountManager::addaccount(QString username, QString userpassword) {
             QMessageBox::Yes);
       }
       accounts.append(newAccount);
-      qDebug() << "account num: " + QString::number(accounts.size(), 10);
       QMessageBox::warning(0, QObject::tr("提示！"),
                            QObject::tr("帐号已成功录入！(*^__^*)"),
                            QMessageBox::Yes);
       updateManager();
+      emit createimap(newAccount); //请求主线程增加imap连接线程
       return;
     }
   }
@@ -182,6 +187,7 @@ void AccountManager::on_pushButton_3_clicked() //删除帐户
         0, QObject::tr("警告！"), QObject::tr("您确定要删除该帐户？"),
         QMessageBox::Yes | QMessageBox::Cancel); //警告对话框
     if (ret == QMessageBox::Yes) {
+        emit destroyimap(accounts.at(index)); //请求主进程销毁imap连接线程
       accounts.removeAt(index);
       QMessageBox::warning(0, QObject::tr("提示！"),
                            QObject::tr("删除成功！(ˇˍˇ) "),

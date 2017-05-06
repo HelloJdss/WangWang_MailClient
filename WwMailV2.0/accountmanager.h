@@ -29,6 +29,7 @@ class AccountManager : public QWidget {
 
 public:
   explicit AccountManager(QWidget *parent = 0);
+  void initialize();
   ~AccountManager();
   qint32 findaccount(QString accountname); //查找帐户序号，不存在则返回-1
 private slots:
@@ -48,6 +49,8 @@ private:
 signals:
   void clearcomboBox();
   void additemcomboBox(QString);
+  void createimap(AccountInfo); //请求GUI主进程创建一个imap连接子进程
+  void destroyimap(AccountInfo);
 };
 
 #endif // ACCOUNTMANAGER_H
