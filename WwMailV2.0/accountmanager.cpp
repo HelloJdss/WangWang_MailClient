@@ -6,13 +6,15 @@ AccountManager::AccountManager(QWidget *parent)
   ui->setupUi(this);
 }
 
-void AccountManager::initialize()
-{
+void AccountManager::initialize() {
   accounts.clear();            //清空帐户链
   QFile file("accounts.data"); //如果已有帐户，则自动读取
   QFileInfo info(file);
   if (info.exists()) { //判断文件是否存在
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+      qDebug() << file.fileName() << " Read Failed!";
+      return;
+    }
     QDataStream in(&file);
     int accountsNum = 0;
     in >> accountsNum;
@@ -26,12 +28,12 @@ void AccountManager::initialize()
       in >> act.smtpfield;
       in >> act.smtpport;
       accounts.append(act);
-      emit createimap(act); //请求主线程增加imap连接线程
+      emit createimapThread(act); //请求主线程增加imap连接线程
     }
     file.close();
-    QMessageBox::warning(0, QObject::tr("提示！"),
-                         QObject::tr("已从文件加载帐户信息！(*^__^*) "),
-                         QMessageBox::Yes); //警告对话框
+//    QMessageBox::warning(0, QObject::tr("提示！"),
+//                         QObject::tr("已从文件加载帐户信息！(*^__^*) "),
+//                         QMessageBox::Yes); //警告对话框
   }
   ui->lineEdit_3->setValidator(
       new QIntValidator(1, 65535, this)); //限定端口号输入范围
@@ -96,11 +98,10 @@ void AccountManager::addaccount(QString username, QString userpassword) {
             QMessageBox::Yes);
       }
       accounts.append(newAccount);
-      QMessageBox::warning(0, QObject::tr("提示！"),
-                           QObject::tr("帐号已成功录入！(*^__^*)"),
-                           QMessageBox::Yes);
+      QMessageBox::information(0, QObject::tr("提示！"),
+                           QObject::tr("帐号已成功录入！(*^__^*)"));
+      emit createimapThread(newAccount); //请求主线程增加imap连接线程
       updateManager();
-      emit createimap(newAccount); //请求主线程增加imap连接线程
       return;
     }
   }
@@ -124,6 +125,7 @@ void AccountManager::updateManager() {
   for (int i = 0; i < accounts.size(); i++) {
     ui->comboBox->addItem(accounts.at(i).accountname);
     emit additemcomboBox(accounts.at(i).accountname);
+    emit updateimapThread(accounts.at(i));
   }
 }
 
@@ -131,9 +133,26 @@ void AccountManager::editaccount(int index) {
   this->on_comboBox_currentIndexChanged(index);
 }
 
-void AccountManager::saveaccounts()
+void AccountManager::saveaccounts() //退出之前写入文件保存
 {
-  this->on_pushButton_clicked();
+  if (ui->checkBox->isChecked()) {
+    QFile file("accounts.data");
+    if (file.open(QIODevice::WriteOnly)) {
+      QDataStream out(&file);
+      out << accounts.size(); //保存帐户数量
+      for (int i = 0; i < accounts.size(); i++) {
+        out << accounts.at(i).accountname;
+        out << accounts.at(i).username;
+        out << accounts.at(i).userpassword;
+        out << accounts.at(i).imapfield;
+        out << accounts.at(i).imapport;
+        out << accounts.at(i).smtpfield;
+        out << accounts.at(i).smtpport;
+      }
+      file.close();
+    } else
+      qDebug() << file.fileName() << " Write Failed!";
+  }
 }
 
 qint32 AccountManager::findaccount(QString accountname) {
@@ -146,25 +165,21 @@ qint32 AccountManager::findaccount(QString accountname) {
 
 void AccountManager::on_pushButton_clicked() //保存
 {
-  if (ui->checkBox->isChecked()) {
-    QFile file("accounts.data");
-    file.open(QIODevice::WriteOnly);
-    QDataStream out(&file);
-    out << accounts.size(); //保存帐户数量
-    for (int i = 0; i < accounts.size(); i++) {
-      out << accounts.at(i).accountname;
-      out << accounts.at(i).username;
-      out << accounts.at(i).userpassword;
-      out << accounts.at(i).imapfield;
-      out << accounts.at(i).imapport;
-      out << accounts.at(i).smtpfield;
-      out << accounts.at(i).smtpport;
+  int index = ui->comboBox->currentIndex();
+  if (index < accounts.size() && index >= 0) {
+    if (accounts.at(index).accountname == ui->comboBox->currentText()) {
+      accounts[index].userpassword=ui->lineEdit->text();
+      accounts[index].imapfield=ui->lineEdit_2->text();
+      accounts[index].imapport=ui->lineEdit_3->text().toUShort();
+      accounts[index].smtpfield=ui->lineEdit_4->text();
+      accounts[index].smtpport=ui->lineEdit_5->text().toUShort();
+      QMessageBox::information(0, QObject::tr("提示！"),
+                           QObject::tr("保存成功！(*^__^*) ……")); //提示对话框
+      updateManager();
+      on_comboBox_currentIndexChanged(index);
+      return;
     }
-    file.close();
-    QMessageBox::warning(0, QObject::tr("提示！"), QObject::tr("本地帐户信息保存成功！(*^__^*) ……"),
-                         QMessageBox::Yes); //警告对话框
   }
-
   this->hide();
 }
 
@@ -187,11 +202,10 @@ void AccountManager::on_pushButton_3_clicked() //删除帐户
         0, QObject::tr("警告！"), QObject::tr("您确定要删除该帐户？"),
         QMessageBox::Yes | QMessageBox::Cancel); //警告对话框
     if (ret == QMessageBox::Yes) {
-        emit destroyimap(accounts.at(index)); //请求主进程销毁imap连接线程
+      emit destroyimapThread(accounts.at(index)); //请求主进程销毁imap连接线程
       accounts.removeAt(index);
-      QMessageBox::warning(0, QObject::tr("提示！"),
-                           QObject::tr("删除成功！(ˇˍˇ) "),
-                           QMessageBox::Yes); //警告对话框
+      QMessageBox::information(0, QObject::tr("提示！"),
+                           QObject::tr("删除成功！(ˇˍˇ) ")); //提示对话框
       updateManager();
     }
   }

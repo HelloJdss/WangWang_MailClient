@@ -19,9 +19,9 @@ public:
   QString username;
   QString userpassword;
   QString imapfield; //服务器域名
-  qint32 imapport;
   QString smtpfield;
-  qint32 smtpport;
+  quint16 imapport;
+  quint16 smtpport;
 };
 
 class AccountManager : public QWidget {
@@ -49,8 +49,9 @@ private:
 signals:
   void clearcomboBox();
   void additemcomboBox(QString);
-  void createimap(AccountInfo); //请求GUI主进程创建一个imap连接子进程
-  void destroyimap(AccountInfo);
+  void createimapThread(AccountInfo); //请求GUI主进程创建一个imap连接子进程
+  void updateimapThread(AccountInfo);
+  void destroyimapThread(AccountInfo);
 };
 
 #endif // ACCOUNTMANAGER_H

@@ -220,7 +220,6 @@ void ClientWindow::updateMailTableView() {
 }
 
 QByteArray ClientWindow::DecodequotedPrintable(const QByteArray &code) {
-  //论手写解码函数一次成功是怎样的愉悦体验
   int pos = 0;
   QByteArray decode;
   while ((pos < code.size()) && ('\0' != code.at(pos))) {

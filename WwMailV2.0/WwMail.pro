@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+QT       += webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,13 +18,16 @@ SOURCES += main.cpp\
         wwmail.cpp \
     accountmanager.cpp \
     addactdialog.cpp \
-    imapthread.cpp
+    imapthread.cpp \
+    emlbrower.cpp
 
 HEADERS  += wwmail.h \
     accountmanager.h \
     addactdialog.h \
-    imapthread.h
+    imapthread.h \
+    emlbrower.h
 
 FORMS    += wwmail.ui \
     accountmanager.ui \
-    addactdialog.ui
+    addactdialog.ui \
+    emlbrower.ui
