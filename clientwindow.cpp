@@ -31,6 +31,7 @@ ClientWindow::ClientWindow(QWidget* parent)
         localtimer->start(1000);
         //绑定操作信号
         connect(&this->imap, &iMap::readprogress, this, &ClientWindow::updateProgressbar_read); //绑定读取邮件进度条信号
+        connect(&this->smtp, &SMTP::progress, this, &ClientWindow::ProgressBar_send);
         //        QObject::connect(ui->action_undo, SIGNAL(triggered()),
         //        ui->WriteMail,
         //            SLOT(undo()));
@@ -267,8 +268,10 @@ void ClientWindow::on_action_relog_triggered()
         if (!loginsuccess) //若已成功登录，则忽略
             loginsuccess = false; //如果拒绝登入，则设定登陆验证为失败
     } else if (ret == QDialog::Accepted) {
-        if (loginsuccess) //若已经成功登录，则先退出
+        if (loginsuccess) {//若已经成功登录，则先退出 
             imap.logout();
+            smtp.Logout();
+        }
         imap.setHost("imap.163.com");
         imap.setPort(143);
         imap.setUserName(Login_dialog.getUSERNAME());
@@ -325,7 +328,29 @@ void ClientWindow::updateProgressbar_read(qint32 readnum, qint32 maxnum)
     ui->progressBar_read->setValue(readnum);
 }
 
+void ClientWindow::ProgressBar_send(qint32 readnum, qint32 maxnum)
+{
+    ui->progressBar_send->setMaximum(maxnum);
+    ui->progressBar_send->setValue(readnum);
+}
+
 void ClientWindow::on_addfile_2_clicked()
 {
-    smtp.SendMail(ui->Subject_edit->text(),ui->To_edit->text(),ui->Text_edit->toPlainText());
+    smtp.SetTextModel(rtf);
+    smtp.SetCCModel(true);
+    smtp.SetBCCModel(true, "THTBa");
+    smtp.SetBCCList({"<412199815@qq.com>"});
+    smtp.SetCCList({"<412199815@qq.com>","<382825415@qq.com>"});
+    QStringList qsl = ui->To_edit->text().split(',');
+    if(smtp.SendMail(ui->Subject_edit->text(),qsl,ui->Text_edit->toPlainText())){
+        QMessageBox::information(this, QObject::tr("确认！"),
+            tr("邮件发送成功！"),
+            QMessageBox::Yes); //确认 
+
+    }
+    else {
+        QMessageBox::warning(this, QObject::tr("警告！"),
+            tr("邮件发送失败！"),
+            QMessageBox::Yes); //警告对话框            
+    }
 }

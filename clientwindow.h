@@ -44,5 +44,6 @@ private slots:
     void on_MailTable_doubleClicked(const QModelIndex &index);
     void updateProgressbar_read(qint32 readnum,qint32 maxnum);
     void on_addfile_2_clicked();
+    void ProgressBar_send(qint32 readnum, qint32 maxnum);
 };
 #endif // CLIENTWINDOW_H

@@ -32,7 +32,7 @@ public:
     void SetHtmlContent(QStringList &s,QString &content);
     void SetBoundaryEnd(QStringList &s);
     void SetRtfContent(QStringList &s,QString &content);
-    inline void SetBCCModel(bool model,QString name) { BCCmodel = model;BCCname = name;}
+    void SetBCCModel(bool model,QString name);
     inline void SetCCModel(bool model) {CCModel = model;}
     inline void SetBCCList(QStringList blist) {BCCList = blist;}
     inline void SetCCList(QStringList clist) {CCList = clist;}
