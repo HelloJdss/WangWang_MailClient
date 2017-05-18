@@ -1,4 +1,4 @@
-#ifndef ADDACTDIALOG_H
+﻿#ifndef ADDACTDIALOG_H
 #define ADDACTDIALOG_H
 
 #include <QDialog>

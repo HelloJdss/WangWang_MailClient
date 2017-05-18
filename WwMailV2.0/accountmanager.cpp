@@ -1,4 +1,4 @@
-#include "accountmanager.h"
+﻿#include "accountmanager.h"
 #include "ui_accountmanager.h"
 
 AccountManager::AccountManager(QWidget *parent)
@@ -22,7 +22,14 @@ void AccountManager::initialize() {
       AccountInfo act;
       in >> act.accountname;
       in >> act.username;
-      in >> act.userpassword;
+      QByteArray ps;
+      in >> ps;
+      QByteArray cipher("FLZX3000cY4yhl9day");//18char
+      QByteArray pswd(QByteArray::fromBase64(ps));
+      for(int j=0;j<pswd.size();j++){
+          pswd[j]=char(int(pswd[j])-int(cipher.at(j%18))); //对密码简单加密
+        }
+      act.userpassword=pswd;
       in >> act.imapfield;
       in >> act.imapport;
       in >> act.smtpfield;
@@ -48,8 +55,8 @@ void AccountManager::addaccount(QString username, QString userpassword) {
           "@")) { //如果输入的是完整的用户名xxx@xxx.com 则按照@拆分
     for (int i = 0; i < accounts.size(); i++) { //遍历查重
       if (accounts.at(i).accountname == username) {
-        QMessageBox::critical(0, QObject::tr("错误！"),
-                              QObject::tr("帐户信息已录入！请勿重复添加！"),
+        QMessageBox::critical(0, QString::fromLocal8Bit("错误！"),
+                              QString::fromLocal8Bit("帐户信息已录入！请勿重复添加！"),
                               QMessageBox::Yes);
         return;
       }
@@ -92,21 +99,21 @@ void AccountManager::addaccount(QString username, QString userpassword) {
         newAccount.smtpfield = "smtp." + strlist.at(1).toLower();
         newAccount.smtpport = 25;
         QMessageBox::warning(
-            0, QObject::tr("警告！"),
-            QObject::tr(
+            0, QString::fromLocal8Bit("警告！"),
+            QString::fromLocal8Bit(
                 "邮箱类型未知！如无法连接请在帐号管理中手动配置服务器！"),
             QMessageBox::Yes);
       }
       accounts.append(newAccount);
-      QMessageBox::information(0, QObject::tr("提示！"),
-                           QObject::tr("帐号已成功录入！(*^__^*)"));
+      QMessageBox::information(0, QString::fromLocal8Bit("提示！"),
+                           QString::fromLocal8Bit("帐号已成功录入！(*^__^*)"));
       emit createimapThread(newAccount); //请求主线程增加imap连接线程
       updateManager();
       return;
     }
   }
-  QMessageBox::warning(0, QObject::tr("警告！"),
-                       QObject::tr("用户名输入有误！"), QMessageBox::Yes);
+  QMessageBox::warning(0, QString::fromLocal8Bit("警告！"),
+                       QString::fromLocal8Bit("用户名输入有误！"), QMessageBox::Yes);
 }
 
 void AccountManager::updateManager() {
@@ -143,7 +150,12 @@ void AccountManager::saveaccounts() //退出之前写入文件保存
       for (int i = 0; i < accounts.size(); i++) {
         out << accounts.at(i).accountname;
         out << accounts.at(i).username;
-        out << accounts.at(i).userpassword;
+        QByteArray cipher("FLZX3000cY4yhl9day");//18char
+        QByteArray pswd(accounts.at(i).userpassword.toLatin1());
+        for(int j=0;j<pswd.size();j++){
+            pswd[j]=char(int(pswd[j])+int(cipher.at(j%18))); //对密码简单加密
+          }
+        out << pswd.toBase64();
         out << accounts.at(i).imapfield;
         out << accounts.at(i).imapport;
         out << accounts.at(i).smtpfield;
@@ -155,12 +167,12 @@ void AccountManager::saveaccounts() //退出之前写入文件保存
   }
 }
 
-qint32 AccountManager::findaccount(QString accountname) {
+AccountInfo AccountManager::findaccount(QString accountname) {
   for (int i = 0; i < accounts.size(); i++) {
     if (accounts.at(i).accountname == accountname)
-      return i;
+      return accounts.at(i);
   }
-  return -1;
+  return AccountInfo();
 }
 
 void AccountManager::on_pushButton_clicked() //保存
@@ -173,8 +185,8 @@ void AccountManager::on_pushButton_clicked() //保存
       accounts[index].imapport=ui->lineEdit_3->text().toUShort();
       accounts[index].smtpfield=ui->lineEdit_4->text();
       accounts[index].smtpport=ui->lineEdit_5->text().toUShort();
-      QMessageBox::information(0, QObject::tr("提示！"),
-                           QObject::tr("保存成功！(*^__^*) ……")); //提示对话框
+      QMessageBox::information(0, QString::fromLocal8Bit("提示！"),
+                           QString::fromLocal8Bit("保存成功！(*^__^*) ……")); //提示对话框
       updateManager();
       on_comboBox_currentIndexChanged(index);
       return;
@@ -199,13 +211,13 @@ void AccountManager::on_pushButton_3_clicked() //删除帐户
   qint32 index = ui->comboBox->currentIndex();
   if (index < accounts.size() && index >= 0) {
     auto ret = QMessageBox::warning(
-        0, QObject::tr("警告！"), QObject::tr("您确定要删除该帐户？"),
+        0, QString::fromLocal8Bit("警告！"), QString::fromLocal8Bit("您确定要删除该帐户？"),
         QMessageBox::Yes | QMessageBox::Cancel); //警告对话框
     if (ret == QMessageBox::Yes) {
       emit destroyimapThread(accounts.at(index)); //请求主进程销毁imap连接线程
       accounts.removeAt(index);
-      QMessageBox::information(0, QObject::tr("提示！"),
-                           QObject::tr("删除成功！(ˇˍˇ) ")); //提示对话框
+      QMessageBox::information(0, QString::fromLocal8Bit("提示！"),
+                           QString::fromLocal8Bit("删除成功！~(T_T)~")); //提示对话框
       updateManager();
     }
   }

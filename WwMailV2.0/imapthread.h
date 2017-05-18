@@ -1,4 +1,4 @@
-#ifndef IMAPTHREAD_H
+﻿#ifndef IMAPTHREAD_H
 #define IMAPTHREAD_H
 #include "wwmail.h"
 #include <QMutex>
@@ -49,6 +49,7 @@ public slots:
 #define SELECTED_ 2 //已选择邮箱
 #define GetHeader_ 3
 #define GetBody_ 4
+#define Delete_ 5 //删除邮件
 
 class MimeData { //邮件体解析类
 private:
@@ -58,18 +59,34 @@ private:
   QString Date;
   QString Header;
   QString Body;
+  QString ContentType;
+  QString ContentEncoding;
+  QString Boundary;
   qint32 Size;
+  qint32 Folderindex; //位于哪个邮箱
+  qint32 Headerindex; //位于第几个
+  QString Account; //收取信息的帐号
 public:
+  void setAccount(QString Account);
   bool setHeader(QString HeaderText);
   void setBody(QString BodyText);
+  void setHeaderindex(qint32 index); //设置处于邮箱中的序号
+  void setFolderindex(qint32 index); //设置邮箱的编号
   bool SaveAsEML(QString); //保存为email文件
   QByteArray DecodequotedPrintable(const QByteArray &code);
   QString DecodeHeaderText(QString Text);
+  const QString getAccount() const{return this->Account;}
+  const qint32& getFolderindex() const{return this->Folderindex;}
+  const qint32& getHeaderindex() const{return this->Headerindex;}
   const QString& getFrom() const{ return this->From; }
   const QString& getTo() const{ return this->To; }
   const QString& getSubject() const{ return this->Subject; }
   const QString& getDate() const{ return this->Date; }
   const QString& getHeader() const{return this->Header;}
+  const QString& getHeaderType() const{return this->ContentType;}
+  const QString& getHeaderEncoding() const{return this->ContentEncoding;}
+  const QString& getHeaderBoundary() const{return this->Boundary;}
+  const QString& getBody() const{return this->Body;}
   qint32 size() const{ return this->Size; }
 };
 
@@ -102,6 +119,8 @@ private:
   qint32 totalRecvBytes;      //须接受的总长度
   bool iscreated;
   qint32 status;
+  qint32 exists;
+  qint32 currentSelected; //当前选择的邮箱序号
   void changestate(qint32 state);
   bool login();              //登陆imap服务器
   bool logout();             //退出服务器并关闭sock
@@ -122,6 +141,7 @@ signals:
   void changedstatus(qint32);
   void addMailFolderlist(QString, QStringList); //请求GUI进程添加邮箱名列表
   void addMailHeaderlist(QList<MimeData>&);          //反馈给GUI线程,引用类型防止复制，减少开销
+  void CreateEmlWindow(const MimeData&,const iMap*);
   // public slots:
   //  QString &getMailBody(qint32 index); //获取邮件体
   // private slots:
@@ -130,6 +150,7 @@ public slots:
   void setAccount(const AccountInfo *account); //设置帐户信息
   void getHeaderList(QString useraccount, int index); //获取指定邮箱邮件头列表
   void getBody(QString useraccount,int index); //获取指定邮件正文
+  void imapDelete(qint32 Folderindex,qint32 Headerindex); //删除邮件
 };
 
 #endif // IMAPTHREAD_H

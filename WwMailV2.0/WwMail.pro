@@ -19,13 +19,15 @@ SOURCES += main.cpp\
     accountmanager.cpp \
     addactdialog.cpp \
     imapthread.cpp \
-    emlbrower.cpp
+    emlbrower.cpp \
+    smtp.cpp
 
 HEADERS  += wwmail.h \
     accountmanager.h \
     addactdialog.h \
     imapthread.h \
-    emlbrower.h
+    emlbrower.h \
+    smtp.h
 
 FORMS    += wwmail.ui \
     accountmanager.ui \

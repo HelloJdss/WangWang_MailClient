@@ -1,4 +1,4 @@
-#include "addactdialog.h"
+﻿#include "addactdialog.h"
 #include <QDebug>
 #include <QMessageBox>
 #include <QRegExp>
@@ -25,8 +25,8 @@ void AddactDialog::on_pushButton_clicked()  //按下确认
     ui->lineEdit_2->clear();
     return;
   }
-  QMessageBox::warning(this, QObject::tr("警告！"),
-                       QObject::tr("输入用户名不合法！请重新输入！/(ㄒoㄒ)/~~"),
+  QMessageBox::warning(this, QString::fromLocal8Bit("警告！"),
+                       QString::fromLocal8Bit("输入用户名不合法！请重新输入！/(ㄒoㄒ)/~~"),
                        QMessageBox::Yes);
 }
 

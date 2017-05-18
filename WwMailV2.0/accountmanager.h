@@ -1,4 +1,4 @@
-#ifndef ACCOUNTMANAGER_H
+﻿#ifndef ACCOUNTMANAGER_H
 #define ACCOUNTMANAGER_H
 
 #include <QDebug>
@@ -31,7 +31,7 @@ public:
   explicit AccountManager(QWidget *parent = 0);
   void initialize();
   ~AccountManager();
-  qint32 findaccount(QString accountname); //查找帐户序号，不存在则返回-1
+  AccountInfo findaccount(QString accountname); //查找帐户序号，不存在则返回一个空信息体
 private slots:
   void on_pushButton_clicked(); //保存
   void on_comboBox_currentIndexChanged(int index);

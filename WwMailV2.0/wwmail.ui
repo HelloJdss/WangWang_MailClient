@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>700</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,6 +76,9 @@
               <property name="contextMenuPolicy">
                <enum>Qt::CustomContextMenu</enum>
               </property>
+              <property name="toolTip">
+               <string>双击展开或提取邮件列表</string>
+              </property>
               <property name="statusTip">
                <string>选择邮箱</string>
               </property>
@@ -86,13 +89,16 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QVBoxLayout" name="verticalLayout">
             <property name="spacing">
              <number>2</number>
             </property>
             <item>
              <widget class="QTableView" name="Mailtable">
+              <property name="toolTip">
+               <string>双击查看完整信息</string>
+              </property>
               <property name="statusTip">
                <string>查看邮件列表</string>
               </property>
@@ -100,53 +106,6 @@
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
              </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <property name="spacing">
-               <number>2</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="pushButton_2">
-                <property name="text">
-                 <string>查看详细</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_10">
-                <property name="text">
-                 <string>快速回复</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="pushButton">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>标记删除</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
             </item>
            </layout>
           </widget>
@@ -158,19 +117,16 @@
        <attribute name="title">
         <string>写邮件</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_3">
+       <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
-         <widget class="QSplitter" name="splitter_3">
+         <widget class="QSplitter" name="splitter_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <widget class="QWidget" name="layoutWidget">
-           <layout class="QVBoxLayout" name="verticalLayout_5">
+           <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_4">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetDefaultConstraint</enum>
-              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_5">
                 <item>
@@ -225,6 +181,76 @@
                </layout>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_8">
+                <item>
+                 <widget class="QLabel" name="label_12">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="text">
+                   <string>抄送：</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_3"/>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <item>
+                 <widget class="QLabel" name="label_13">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::NoFrame</enum>
+                  </property>
+                  <property name="text">
+                   <string>密送：</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLineEdit" name="lineEdit_4"/>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>
                  <widget class="QLabel" name="label_7">
@@ -267,7 +293,7 @@
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,5,0">
+               <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,0,5,0">
                 <item>
                  <widget class="QLabel" name="label_8">
                   <property name="sizePolicy">
@@ -297,6 +323,13 @@
                  </widget>
                 </item>
                 <item>
+                 <widget class="QLineEdit" name="lineEdit_5">
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QComboBox" name="comboBox"/>
                 </item>
                 <item>
@@ -308,9 +341,13 @@
                 </item>
                </layout>
               </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_8">
               <item>
-               <layout class="QGridLayout" name="gridLayout_2">
-                <item row="0" column="0">
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
                  <widget class="QLabel" name="label_9">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -337,21 +374,77 @@
                    <string>正文：</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QTextEdit" name="textEdit"/>
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_4">
+                  <property name="spacing">
+                   <number>2</number>
+                  </property>
+                  <item>
+                   <widget class="QComboBox" name="comboBox_2"/>
+                  </item>
+                  <item>
+                   <widget class="QTextEdit" name="textEdit"/>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <item>
+                 <widget class="QLabel" name="label_11">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>60</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>发送进度：</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QProgressBar" name="progressBar">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="value">
+                   <number>0</number>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
              </layout>
             </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="layoutWidget">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <layout class="QVBoxLayout" name="verticalLayout_7">
               <item>
-               <widget class="QLabel" name="label_11">
+               <widget class="QLabel" name="label">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -371,71 +464,64 @@
                  </size>
                 </property>
                 <property name="text">
-                 <string>发送进度：</string>
+                 <string>附件列表</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QProgressBar" name="progressBar_3">
+               <widget class="QListView" name="listView_2"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QLabel" name="label_10">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="value">
-                 <number>0</number>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="text">
+                 <string>常用联系人</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QListView" name="listView">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <item>
-             <widget class="QLabel" name="label_10">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
-              </property>
-              <property name="text">
-               <string>   常用联系人</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QListView" name="listView">
-              <property name="editTriggers">
-               <set>QAbstractItemView::NoEditTriggers</set>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QPushButton" name="pushButton_7">
               <property name="text">
-               <string>保存邮件</string>
+               <string>读取草稿</string>
               </property>
              </widget>
             </item>
@@ -499,20 +585,8 @@
     </property>
     <addaction name="action_A"/>
    </widget>
-   <widget class="QMenu" name="menu_L">
-    <property name="title">
-     <string>日志(&amp;L)</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_E">
-    <property name="title">
-     <string>编辑(&amp;E)</string>
-    </property>
-   </widget>
    <addaction name="menu_M"/>
-   <addaction name="menu_E"/>
    <addaction name="menu_A"/>
-   <addaction name="menu_L"/>
    <addaction name="menu_H"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
